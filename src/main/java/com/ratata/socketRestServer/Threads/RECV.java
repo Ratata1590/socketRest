@@ -33,13 +33,11 @@ public class RECV extends Thread {
 				response.getEntity().writeTo(sock.getOutputStream());
 				sock.getOutputStream().flush();
 			} catch (Exception e) {
-				e.printStackTrace();
 				disconnectRemoteSocket();
 				try {
 
 					sock.close();
 				} catch (Exception e2) {
-					e.printStackTrace();
 				}
 				break;
 			}

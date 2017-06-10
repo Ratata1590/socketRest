@@ -38,12 +38,10 @@ public class SEND extends Thread {
 					}
 				} while (response.getStatusLine().getStatusCode() != 200);
 			} catch (Exception e) {
-				e.printStackTrace();
 				disconnectRemoteSocket();
 				try {
 					sock.close();
 				} catch (Exception e2) {
-					e.printStackTrace();
 				}
 				break;
 			}
