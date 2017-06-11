@@ -12,10 +12,13 @@ public class Launcher {
 		ObjectMapper mapper = new ObjectMapper();
 		for (String config : args) {
 			JsonNode configNode = mapper.readTree(new File(config));
-			Server server = new Server();
-			server.startServer(configNode.get("openPort").asInt(), configNode.get("proxyUrl").asText(),
-					configNode.get("destHost").asText(), configNode.get("destPort").asText(),
-					configNode.get("sessionId").asText());
+			if (configNode.has("mirror")) {
+
+			} else {
+				Server server = new Server();
+				server.startServer(configNode.get("openPort").asInt(), configNode.get("proxyUrl").asText(),
+						configNode.get("destHost").asText(), configNode.get("destPort").asText());
+			}
 		}
 	}
 }
