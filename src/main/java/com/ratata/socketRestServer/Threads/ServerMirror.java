@@ -93,7 +93,7 @@ public class ServerMirror extends Thread {
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpPost post = new HttpPost(proxyUrl.concat("/mirror").concat("/socketHandler"));
 		post.addHeader("sockRestId", sockRestId);
-		post.setEntity(new StringEntity("ready"));
+		post.setEntity(new StringEntity(this.destHost + ":" + this.destPort));
 		HttpResponse response;
 		int ctry = retryNumber;
 		do {
