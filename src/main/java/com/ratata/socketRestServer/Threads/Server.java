@@ -59,9 +59,8 @@ public class Server extends Thread {
 
 	private String connectRemoteSocket(String destHost, String destPort, Socket sock) {
 		HttpClient client = HttpClientBuilder.create().build();
-		HttpPost post = new HttpPost(proxyUrl.concat("/socketControl"));
+		HttpPost post = new HttpPost(proxyUrl.concat("/socketControl/connect"));
 		String sockRestId = null;
-		post.addHeader("action", "connect");
 		post.addHeader("host", destHost);
 		post.addHeader("port", destPort);
 		try {
