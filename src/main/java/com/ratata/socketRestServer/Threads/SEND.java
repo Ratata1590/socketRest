@@ -32,10 +32,6 @@ public class SEND extends LinkAbstract {
 				} while (response.getStatusLine().getStatusCode() != 200);
 			} catch (Exception e) {
 				disconnectRemoteSocket();
-				try {
-					sock.close();
-				} catch (Exception e2) {
-				}
 				break;
 			}
 		}

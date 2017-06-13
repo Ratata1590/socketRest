@@ -25,11 +25,6 @@ public class RECV extends LinkAbstract {
 				sock.getOutputStream().flush();
 			} catch (Exception e) {
 				disconnectRemoteSocket();
-				try {
-
-					sock.close();
-				} catch (Exception e2) {
-				}
 				break;
 			}
 		}
