@@ -64,16 +64,21 @@ public class Server extends Thread {
 		post.addHeader("host", destHost);
 		post.addHeader("port", destPort);
 		try {
-			HttpResponse response;
+			HttpResponse response = null;
 			int ctry = 5;
-			do {
+			while (!Thread.currentThread().isInterrupted()) {
 				response = client.execute(post);
+				if (response.getStatusLine().getStatusCode() == 200) {
+					break;
+				}
+				post.releaseConnection();
 				ctry--;
 				if (ctry == 0) {
 					throw new Exception("out of retry");
 				}
-			} while (response.getStatusLine().getStatusCode() != 200);
+			}
 			sockRestId = EntityUtils.toString(response.getEntity());
+			post.releaseConnection();
 		} catch (Exception e) {
 			try {
 				sock.close();

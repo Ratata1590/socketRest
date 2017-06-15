@@ -28,15 +28,16 @@ public class ServerMirror extends Thread {
 			Socket sock = null;
 			try {
 				sock = serverSocket.accept();
-				String sockRestId = connectRemoteMirrorSocket(destHost, destPort, sock);
-				if (sockRestId == null) {
+				String sockRestIds = connectRemoteMirrorSocket(destHost, destPort, sock);
+				if (sockRestIds == null) {
 					sock.close();
 					continue;
 				}
+				String[] sockRestId = sockRestIds.split(":");
 				SEND send = new SEND();
-				send.startSend(proxyUrl.concat("/mirror"), sock, sockRestId);
+				send.startSend(proxyUrl.concat("/mirror"), sock, sockRestId[0]);
 				RECV recv = new RECV();
-				recv.startSend(proxyUrl.concat("/mirror"), sock, sockRestId);
+				recv.startSend(proxyUrl.concat("/mirror"), sock, sockRestId[1]);
 				System.out.println(sock.getInetAddress() + ":" + sock.getPort() + "=>" + openPort + "=>" + proxyUrl
 						+ "=>" + botName + "=>" + destHost + ":" + destPort);
 			} catch (Exception e) {
@@ -69,16 +70,21 @@ public class ServerMirror extends Thread {
 		HttpPost post = new HttpPost(proxyUrl.concat("/botGetConnection"));
 		post.addHeader("botName", botName);
 		try {
-			HttpResponse response;
+			HttpResponse response = null;
 			int ctry = retryNumber;
-			do {
+			while (!Thread.currentThread().isInterrupted()) {
 				response = client.execute(post);
+				if (response.getStatusLine().getStatusCode() == 200) {
+					break;
+				}
+				post.releaseConnection();
 				ctry--;
 				if (ctry == 0) {
 					throw new Exception("out of retry");
 				}
-			} while (response.getStatusLine().getStatusCode() != 200);
+			}
 			sockRestId = EntityUtils.toString(response.getEntity());
+			post.releaseConnection();
 			sendConfigToBot(sockRestId);
 		} catch (Exception e) {
 			try {
@@ -89,19 +95,24 @@ public class ServerMirror extends Thread {
 		return sockRestId;
 	}
 
-	private void sendConfigToBot(String sockRestId) throws Exception {
+	private void sendConfigToBot(String sockRestIds) throws Exception {
+		String[] sockRestId = sockRestIds.split(":");
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpPost post = new HttpPost(proxyUrl.concat("/mirror").concat("/socketHandler"));
-		post.addHeader("sockRestId", sockRestId);
-		post.setEntity(new StringEntity(this.destHost + ":" + this.destPort));
+		post.addHeader("sockRestId", sockRestId[0]);
+		post.setEntity(new StringEntity(this.destHost + ":" + this.destPort + ":" + sockRestId[1]));
 		HttpResponse response;
 		int ctry = retryNumber;
-		do {
+		while (!Thread.currentThread().isInterrupted()) {
 			response = client.execute(post);
+			if (response.getStatusLine().getStatusCode() == 200) {
+				break;
+			}
+			post.releaseConnection();
 			ctry--;
 			if (ctry == 0) {
 				throw new Exception("out of retry");
 			}
-		} while (response.getStatusLine().getStatusCode() != 200);
+		}
 	}
 }

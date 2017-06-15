@@ -30,6 +30,7 @@ public abstract class LinkAbstract extends Thread {
       do {
         post.setHeader("sessionId", sessionId);
         response = client.execute(post);
+        post.releaseConnection();
         ctry--;
         if (ctry == 0) {
           throw new Exception("out of retry");

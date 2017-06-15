@@ -24,6 +24,8 @@ public class SEND extends LinkAbstract {
 				int ctry = retry;
 				do {
 					response = client.execute(post);
+					response.getEntity().getContent().close();
+					post.releaseConnection();
 					ctry--;
 					if (ctry == 0) {
 						throw new Exception("out of retry");

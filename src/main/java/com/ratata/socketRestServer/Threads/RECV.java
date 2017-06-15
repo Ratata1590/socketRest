@@ -12,21 +12,27 @@ public class RECV extends LinkAbstract {
 			HttpGet get = new HttpGet(this.proxyUrl.concat("/socketHandler"));
 			get.addHeader("sockRestId", sessionId);
 			try {
-				HttpResponse response;
+				HttpResponse response = null;
 				int ctry = retry;
-				do {
+				while (!Thread.currentThread().isInterrupted()) {
 					response = client.execute(get);
+					if (response.getStatusLine().getStatusCode() == 200) {
+						break;
+					}
+					get.releaseConnection();
 					ctry--;
 					if (ctry == 0) {
 						throw new Exception("out of retry");
 					}
-				} while (response.getStatusLine().getStatusCode() != 200);
-				if (response.getEntity().getContent().available() != 0) {
+				}
+				if (response.getEntity() != null) {
 					response.getEntity().writeTo(sock.getOutputStream());
 					sock.getOutputStream().flush();
+					response.getEntity().getContent().close();
 				} else {
 					Thread.sleep(1000);
 				}
+				get.releaseConnection();
 			} catch (Exception e) {
 				disconnectRemoteSocket();
 				break;
