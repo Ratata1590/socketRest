@@ -21,8 +21,12 @@ public class RECV extends LinkAbstract {
 						throw new Exception("out of retry");
 					}
 				} while (response.getStatusLine().getStatusCode() != 200);
-				response.getEntity().writeTo(sock.getOutputStream());
-				sock.getOutputStream().flush();
+				if (response.getEntity().getContent().available() != 0) {
+					response.getEntity().writeTo(sock.getOutputStream());
+					sock.getOutputStream().flush();
+				} else {
+					Thread.sleep(1000);
+				}
 			} catch (Exception e) {
 				disconnectRemoteSocket();
 				break;

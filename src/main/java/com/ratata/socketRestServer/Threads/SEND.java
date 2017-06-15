@@ -20,7 +20,6 @@ public class SEND extends LinkAbstract {
 				tmpbuff = new byte[sock.getInputStream().read(resultBuff, 0, resultBuff.length)];
 				System.arraycopy(resultBuff, 0, tmpbuff, 0, tmpbuff.length);
 				post.setEntity(new ByteArrayEntity(tmpbuff));
-
 				HttpResponse response;
 				int ctry = retry;
 				do {
