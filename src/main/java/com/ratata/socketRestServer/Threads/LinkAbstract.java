@@ -2,9 +2,8 @@ package com.ratata.socketRestServer.Threads;
 
 import java.net.Socket;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 public abstract class LinkAbstract extends Thread {
@@ -22,25 +21,18 @@ public abstract class LinkAbstract extends Thread {
   }
 
   protected void disconnectRemoteSocket() {
-    HttpClient client = HttpClientBuilder.create().build();
+    CloseableHttpClient client = HttpClientBuilder.create().build();
     HttpPost post = new HttpPost(proxyUrl.concat("/socketControl/disconnect"));
+    post.setHeader("sessionId", sessionId);
     try {
-      HttpResponse response;
-      int ctry = 5;
-      do {
-        post.setHeader("sessionId", sessionId);
-        response = client.execute(post);
-        post.releaseConnection();
-        ctry--;
-        if (ctry == 0) {
-          throw new Exception("out of retry");
-        }
-      } while (response.getStatusLine().getStatusCode() != 200);
+      client.execute(post);
+      post.releaseConnection();
+      client.close();
+    } catch (Exception e2) {
+    }
+    try {
+      sock.close();
     } catch (Exception e) {
-      try {
-        sock.close();
-      } catch (Exception e2) {
-      }
     }
   }
 }
