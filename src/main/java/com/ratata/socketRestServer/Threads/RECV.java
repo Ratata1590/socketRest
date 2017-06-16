@@ -1,5 +1,8 @@
 package com.ratata.socketRestServer.Threads;
 
+import java.io.PushbackInputStream;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -16,13 +19,24 @@ public class RECV extends LinkAbstract {
         if (response.getStatusLine().getStatusCode() != 200) {
           throw new Exception("status not 200");
         }
-        if (response.getEntity() != null) {
-          response.getEntity().writeTo(sock.getOutputStream());
-          sock.getOutputStream().flush();
-          response.getEntity().getContent().close();
-        } else {
-          Thread.sleep(1000);
+        if (response.getEntity() == null) {
+          get.releaseConnection();
+          client.close();
+          Thread.sleep(LinkAbstract.delay);
+          continue;
         }
+        PushbackInputStream in = new PushbackInputStream(response.getEntity().getContent());
+        int firstByte = in.read();
+        if (firstByte == -1) {
+          get.releaseConnection();
+          client.close();
+          Thread.sleep(LinkAbstract.delay);
+          continue;
+        }
+        in.unread(firstByte);
+        IOUtils.copy(in, sock.getOutputStream());
+        // response.getEntity().writeTo(sock.getOutputStream());
+        sock.getOutputStream().flush();
         get.releaseConnection();
         client.close();
       } catch (Exception e) {

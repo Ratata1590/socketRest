@@ -73,6 +73,7 @@ public class ServerMirror extends Thread {
 			HttpResponse response = null;
 			int ctry = retryNumber;
 			while (!Thread.currentThread().isInterrupted()) {
+			  System.out.println("connectRemoteMirrorSocket");
 				response = client.execute(post);
 				if (response.getStatusLine().getStatusCode() == 200) {
 					break;
@@ -84,6 +85,7 @@ public class ServerMirror extends Thread {
 				}
 			}
 			sockRestId = EntityUtils.toString(response.getEntity());
+			System.out.println("connectRemoteMirrorSocket:"+sockRestId);
 			post.releaseConnection();
 			sendConfigToBot(sockRestId);
 		} catch (Exception e) {
@@ -105,6 +107,7 @@ public class ServerMirror extends Thread {
 		int ctry = retryNumber;
 		while (!Thread.currentThread().isInterrupted()) {
 			response = client.execute(post);
+			System.out.println("sendConfigToBot"+sockRestIds);
 			if (response.getStatusLine().getStatusCode() == 200) {
 				break;
 			}

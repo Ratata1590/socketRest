@@ -13,6 +13,8 @@ public abstract class LinkAbstract extends Thread {
 
   protected int retry = 5;
 
+  public static int delay = 1000;
+
   public void startSend(String proxyUrl, Socket sock, String sessionId) {
     this.proxyUrl = proxyUrl;
     this.sock = sock;
@@ -24,6 +26,7 @@ public abstract class LinkAbstract extends Thread {
     CloseableHttpClient client = HttpClientBuilder.create().build();
     HttpPost post = new HttpPost(proxyUrl.concat("/socketControl/disconnect"));
     post.setHeader("sessionId", sessionId);
+    System.out.println("disconnectRemoteSocket recv send");
     try {
       client.execute(post);
       post.releaseConnection();
